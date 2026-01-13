@@ -24,13 +24,13 @@ In a fresh conversation:
    > "I want to add user authentication to this app"
 
 2. **Have Claude explore the codebase**
-   > "Read the PRD.md and relevant .agents/reference docs. Explore the existing code structure."
+   > "Read CLAUDE.md and the relevant `.claude/reference/` docs. Explore the existing code structure."
 
 3. **Discuss approaches**
    > "What are our options? What are the tradeoffs?"
 
 4. **Capture the plan**
-   > "Write a detailed implementation plan to a new file: docs/plans/auth-implementation.md"
+   > "Write a detailed implementation plan to `.agents/plans/auth-implementation.md`"
 
 **Exit this conversation. Do not start implementing.**
 
@@ -73,7 +73,7 @@ The plan document should contain:
 Start a **new conversation**:
 
 1. **Load the plan**
-   > "Read docs/plans/auth-implementation.md and implement it step by step."
+   > "Read `.agents/plans/auth-implementation.md` and implement it step by step."
 
 2. **Let Claude work through the steps**
    - The plan provides clear direction
@@ -81,7 +81,7 @@ Start a **new conversation**:
    - Fresh context = better code
 
 3. **If context degrades**, start another fresh conversation
-   > "Continue from step 5 of docs/plans/auth-implementation.md"
+   > "Continue from step 5 of `.agents/plans/auth-implementation.md`"
 
 ---
 
@@ -100,7 +100,7 @@ Reset when you notice:
 Every friction point is an opportunity to improve:
 
 ### Bug: Claude uses wrong import style
-**Fix:** Add to `.agents/reference/api.md`:
+**Fix:** Add to `.claude/reference/api.md`:
 ```markdown
 ## Import Conventions
 Always use relative imports within the app package:
@@ -117,7 +117,7 @@ Always run the relevant tests:
 ```
 
 ### Bug: Claude doesn't understand auth flow
-**Fix:** Create `.agents/reference/auth.md` with detailed auth patterns
+**Fix:** Create `.claude/reference/auth.md` with detailed auth patterns
 
 ---
 
@@ -125,10 +125,10 @@ Always run the relevant tests:
 
 | Situation | Action |
 |-----------|--------|
-| Starting new feature | Create plan doc first |
+| Starting new feature | Create plan in `.agents/plans/` first |
 | Long conversation | Reset and continue from plan |
 | Claude making repeated mistakes | Add rule to prevent it |
-| Complex domain logic | Create reference doc explaining it |
+| Complex domain logic | Create reference doc in `.claude/reference/` |
 | Repetitive task | Create a `/command` for it |
 
 ---
@@ -137,9 +137,8 @@ Always run the relevant tests:
 
 For every project using this workflow:
 
-- [ ] `PRD.md` - Requirements and feature phases
-- [ ] `CLAUDE.md` - Global rules
-- [ ] `.agents/AGENTS.md` - Context loader
-- [ ] `.agents/reference/*.md` - Domain-specific patterns
+- [ ] `CLAUDE.md` - Main documentation entry point
+- [ ] `.claude/PRD.md` - Requirements and feature phases
+- [ ] `.claude/reference/*.md` - Domain-specific patterns
 - [ ] `.claude/commands/*.md` - Reusable workflows
-- [ ] `docs/plans/*.md` - Implementation plans (created as needed)
+- [ ] `.agents/plans/*.md` - Implementation plans (created per feature)

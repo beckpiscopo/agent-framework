@@ -1,67 +1,172 @@
-# Project Rules
+# [Project Name] - Complete Documentation
 
-> Global rules for Claude Code. These apply to all tasks.
+<!-- Replace with your project description -->
+A brief description of what this project does.
 
-## Quick Start
+## Tech Stack
 
-Before starting any task:
-1. Read `PRD.md` to understand project requirements
-2. Read `.agents/AGENTS.md` to load relevant context for your task
+- **Backend**: Python 3.11+, FastAPI, SQLAlchemy, Supabase (PostgreSQL)
+- **Frontend**: Next.js 14+, React 18, Tailwind CSS, TanStack Query
+- **Testing**: pytest, Vitest, Playwright
+- **Infrastructure**: Supabase (DB + Auth + Storage), Vercel, Railway
 
-## Project Overview
+## Project Structure
 
-**Stack:** FastAPI (backend) + Next.js (frontend)
-
-**Structure:**
 ```
-/backend    - FastAPI application
-/frontend   - Next.js application
-/docs       - Additional documentation
+project/
+├── backend/
+│   ├── app/
+│   │   ├── main.py           # FastAPI entry point
+│   │   ├── config.py         # Settings and environment
+│   │   ├── database.py       # Supabase/SQLAlchemy connection
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── schemas/          # Pydantic schemas
+│   │   ├── routers/          # API endpoints
+│   │   ├── services/         # Business logic
+│   │   └── utils/            # Helper functions
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── app/              # Next.js App Router
+│   │   ├── components/       # React components
+│   │   ├── hooks/            # Custom hooks
+│   │   ├── lib/              # Utilities, API client
+│   │   └── stores/           # Zustand stores
+│   └── package.json
+├── tests/
+│   ├── unit/                 # Unit tests
+│   ├── integration/          # API integration tests
+│   └── e2e/                  # Playwright E2E tests
+├── .claude/
+│   ├── commands/             # Slash commands
+│   ├── reference/            # Best practices docs
+│   └── PRD.md                # Product requirements
+└── .agents/
+    └── plans/                # Implementation plans (per feature)
 ```
 
-## Global Conventions
+## Commands
 
-### Code Style
-- Write clean, readable code over clever code
-- Use descriptive variable/function names
-- Keep functions small and focused (single responsibility)
-- Add comments only when the "why" isn't obvious
+```bash
+# Backend
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# Testing (Backend)
+cd backend
+pytest tests/ -v                              # All tests
+pytest tests/unit/ -v                         # Unit tests only
+pytest --cov=app                              # With coverage
+
+# Testing (Frontend)
+cd frontend
+npm test                                      # Vitest
+npx playwright test                           # E2E tests
+
+# Database (Supabase)
+supabase start                                # Local dev
+supabase db push                              # Push migrations
+supabase db pull                              # Pull remote changes
+```
+
+## Reference Documentation
+
+Read these documents when working on specific areas:
+
+| Document | When to Read |
+|----------|--------------|
+| `.claude/PRD.md` | Understanding requirements, features, API spec |
+| `.claude/reference/api.md` | Building API endpoints, Pydantic schemas, FastAPI patterns |
+| `.claude/reference/components.md` | React components, hooks, state management, forms |
+| `.claude/reference/testing.md` | Unit/integration/E2E testing patterns |
+| `.claude/reference/deploy.md` | Supabase setup, Vercel/Railway deployment, CI/CD |
+
+**Implementation plans** live in `.agents/plans/` - create one per feature during the PLAN phase.
+
+## Code Conventions
+
+### Backend (Python)
+- Use Pydantic models for all request/response schemas
+- Separate schemas: `UserCreate`, `UserUpdate`, `UserResponse`
+- Use `Depends()` for database sessions and shared dependencies
+- Services contain business logic, routers are thin
+- Use HTTPException with appropriate status codes
+
+### Frontend (React/Next.js)
+- App Router with file-based routing
+- Use TanStack Query for all API calls (no raw useEffect fetching)
+- Tailwind CSS for styling - no separate CSS files
+- Forms with react-hook-form + Zod validation
+- Zustand for client-side state, React Query for server state
+
+### API Design
+- RESTful endpoints under `/api/`
+- Return 201 for POST (created), 204 for DELETE
+- Use HTTPException with descriptive error messages
+- Validate all input with Pydantic
 
 ### Git
-- Use conventional commits: `type(scope): description`
+- Conventional commits: `type(scope): description`
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 - Keep commits atomic (one logical change per commit)
-- Write meaningful commit messages
 
-### Security
-- Never commit secrets or credentials
-- Validate all user input
-- Use parameterized queries (no raw SQL)
-- Sanitize output to prevent XSS
+## Database (Supabase)
 
-### Error Handling
-- Handle errors at appropriate boundaries
-- Provide meaningful error messages
-- Log errors with context for debugging
+Connection via SQLAlchemy using Supabase's PostgreSQL:
 
-## On-Demand Context
+```python
+# app/database.py
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+import os
 
-For detailed patterns, load the relevant reference doc:
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
+```
 
-| Working On | Load This |
-|------------|-----------|
-| Backend/API | `.agents/reference/api.md` |
-| Frontend/Components | `.agents/reference/components.md` |
-| Deployment | `.agents/reference/deploy.md` |
-| Tests | `.agents/reference/testing.md` |
+Supabase also provides:
+- **Auth**: Use `supabase.auth` for user management (optional)
+- **Storage**: Use for file uploads
+- **Realtime**: Subscribe to database changes
 
-## Commands Available
+## Testing Strategy
 
-- `/commit` - Smart commit with conventional format
-- `/review` - Code review for quality and bugs
+### Testing Pyramid
+- **70% Unit tests**: Pure functions, business logic, validators
+- **20% Integration tests**: API endpoints with test database
+- **10% E2E tests**: Critical user journeys with Playwright
 
-## Evolving These Rules
+### Test Organization
+```
+tests/
+├── conftest.py              # Shared fixtures
+├── unit/                    # Business logic tests
+├── integration/             # API tests with real DB
+└── e2e/                     # Playwright user journey tests
+```
+
+## Slash Commands
+
+Available commands in `.claude/commands/`:
+
+| Command | Description |
+|---------|-------------|
+| `/plan-project` | Plan a new project from a rough idea, generate PRD |
+| `/create-plan` | Create implementation plan for a feature/phase |
+| `/commit` | Smart commit with conventional format |
+| `/review` | Code review for quality and bugs |
+
+## Evolving This Document
 
 When you encounter a pattern that should be standardized:
-1. Add it to the appropriate reference doc in `.agents/reference/`
-2. If it's truly global, add it here
-3. Keep rules actionable and specific
+1. Add detailed patterns to the appropriate `.claude/reference/` doc
+2. Add a summary here if it's a global convention
+3. Keep this document scannable - details go in reference docs

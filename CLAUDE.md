@@ -24,7 +24,7 @@ project/
 │   │   ├── routers/          # API endpoints
 │   │   ├── services/         # Business logic
 │   │   └── utils/            # Helper functions
-│   └── requirements.txt
+│   └── pyproject.toml
 ├── frontend/
 │   ├── src/
 │   │   ├── app/              # Next.js App Router
@@ -50,30 +50,23 @@ project/
 ```bash
 # Backend
 cd backend
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+uv sync
+uv run uvicorn app.main:app --reload --port 8000
 
 # Frontend
 cd frontend
 npm install
 npm run dev
 
-# Testing (Backend)
-cd backend
-pytest tests/ -v                              # All tests
-pytest tests/unit/ -v                         # Unit tests only
-pytest --cov=app                              # With coverage
-
-# Testing (Frontend)
-cd frontend
-npm test                                      # Vitest
-npx playwright test                           # E2E tests
+# Testing
+uv run pytest tests/ -v                           # Backend tests
+npm test                                          # Frontend unit tests
+npx playwright test                               # E2E tests
 
 # Database (Supabase)
-supabase start                                # Local dev
-supabase db push                              # Push migrations
-supabase db pull                              # Pull remote changes
+supabase start                                    # Local dev
+supabase db diff -f migration_name                # Create migration
+supabase db push                                  # Apply migrations
 ```
 
 ## Reference Documentation
@@ -83,12 +76,18 @@ Read these documents when working on specific areas:
 | Document | When to Read |
 |----------|--------------|
 | `.claude/PRD.md` | Understanding requirements, features, API spec |
-| `.claude/reference/api.md` | Building API endpoints, Pydantic schemas, FastAPI patterns |
+| `.claude/reference/api-best-practices.md` | Building API endpoints, Pydantic schemas, FastAPI patterns |
 | `.claude/reference/components.md` | React components, hooks, state management, forms |
 | `.claude/reference/testing.md` | Unit/integration/E2E testing patterns |
 | `.claude/reference/deploy.md` | Supabase setup, Vercel/Railway deployment, CI/CD |
 
 **Implementation plans** live in `.agents/plans/` - create one per feature during the PLAN phase.
+
+## MCP Integrations
+
+```bash
+claude mcp add playwright-mcp    # Browser automation, E2E testing
+```
 
 ## Code Conventions
 
@@ -97,11 +96,11 @@ Read these documents when working on specific areas:
 - Separate schemas: `UserCreate`, `UserUpdate`, `UserResponse`
 - Use `Depends()` for database sessions and shared dependencies
 - Services contain business logic, routers are thin
-- Use HTTPException with appropriate status codes
+- Structured logging with structlog
 
 ### Frontend (React/Next.js)
 - App Router with file-based routing
-- Use TanStack Query for all API calls (no raw useEffect fetching)
+- TanStack Query for all API calls (no raw useEffect fetching)
 - Tailwind CSS for styling - no separate CSS files
 - Forms with react-hook-form + Zod validation
 - Zustand for client-side state, React Query for server state
@@ -110,52 +109,25 @@ Read these documents when working on specific areas:
 - RESTful endpoints under `/api/`
 - Return 201 for POST (created), 204 for DELETE
 - Use HTTPException with descriptive error messages
-- Validate all input with Pydantic
 
 ### Git
 - Conventional commits: `type(scope): description`
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-- Keep commits atomic (one logical change per commit)
 
 ## Database (Supabase)
 
-Connection via SQLAlchemy using Supabase's PostgreSQL:
-
-```python
-# app/database.py
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-import os
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine)
-```
-
-Supabase also provides:
-- **Auth**: Use `supabase.auth` for user management (optional)
+- Connection via SQLAlchemy using Supabase's PostgreSQL
+- **Auth**: Use `supabase.auth` for user management
 - **Storage**: Use for file uploads
 - **Realtime**: Subscribe to database changes
 
 ## Testing Strategy
 
-### Testing Pyramid
 - **70% Unit tests**: Pure functions, business logic, validators
 - **20% Integration tests**: API endpoints with test database
 - **10% E2E tests**: Critical user journeys with Playwright
 
-### Test Organization
-```
-tests/
-├── conftest.py              # Shared fixtures
-├── unit/                    # Business logic tests
-├── integration/             # API tests with real DB
-└── e2e/                     # Playwright user journey tests
-```
-
 ## Slash Commands
-
-Available commands in `.claude/commands/`:
 
 | Command | Description |
 |---------|-------------|

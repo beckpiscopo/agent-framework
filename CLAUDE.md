@@ -76,10 +76,13 @@ Read these documents when working on specific areas:
 | Document | When to Read |
 |----------|--------------|
 | `.claude/PRD.md` | Understanding requirements, features, API spec |
+| `.claude/reference/architecture.md` | System architecture, data pipeline, database schema, API map, frontend structure |
+| `.claude/reference/data-dictionary.md` | External data sources, APIs, ingestion schedules, auth requirements |
+| `.claude/reference/metric-dictionary.md` | Indicators, scoring weights, normalization methods, tier definitions |
 | `.claude/reference/api-best-practices.md` | Building API endpoints, Pydantic schemas, FastAPI patterns |
 | `.claude/reference/components.md` | React components, hooks, state management, forms |
 | `.claude/reference/testing.md` | Unit/integration/E2E testing patterns |
-| `.claude/reference/deploy.md` | Supabase setup, Vercel/Railway deployment, CI/CD |
+| `.claude/reference/deployment-best-practices.md` | Supabase setup, Vercel/Railway deployment, CI/CD |
 
 **Implementation plans** live in `.agents/plans/` - create one per feature during the PLAN phase.
 
@@ -90,6 +93,16 @@ claude mcp add playwright-mcp    # Browser automation, E2E testing
 ```
 
 ## Code Conventions
+
+### Living Documentation (MANDATORY)
+
+Claude must keep these three reference documents up to date as the project evolves:
+
+- **Architecture** (`.claude/reference/architecture.md`): Update when adding/removing services, models, routers, endpoints, pages, hooks, database tables, scheduled jobs, or dependencies.
+- **Data Dictionary** (`.claude/reference/data-dictionary.md`): Update when adding/removing/modifying data sources, changing refresh intervals, or changing which modules a source feeds. If the project has a frontend data dictionary page, keep `frontend/src/lib/data-dictionary.ts` in sync.
+- **Metric Dictionary** (`.claude/reference/metric-dictionary.md`): Update when adding/removing indicators, changing normalization methods, modifying scoring weights or tier thresholds, or changing alert trigger conditions.
+
+Each document has HTML comments at the top listing specific update triggers. Read these before making changes.
 
 ### Backend (Python)
 - Use Pydantic models for all request/response schemas
@@ -133,6 +146,10 @@ claude mcp add playwright-mcp    # Browser automation, E2E testing
 |---------|-------------|
 | `/plan-project` | Plan a new project from a rough idea, generate PRD |
 | `/create-plan` | Create implementation plan for a feature/phase |
+| `/build` | Read plan, implement next incomplete step, validate, commit |
+| `/status` | Show progress, current step, environment health |
+| `/validate` | Run validation checks for current/specific step |
+| `/briefing` | Generate a situation briefing from live backend data |
 | `/commit` | Smart commit with conventional format |
 | `/review` | Code review for quality and bugs |
 
